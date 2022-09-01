@@ -37,7 +37,7 @@ class SrcGenerator:
                        ';ENDFOLD (BASISTECH INI)\n' +
                        ';ENDFOLD (INI)\n'+
                        '\n' +
-                       ';FOLD STARTPOSITION - BASE IS 0, TOOL IS 3, SPEED IS 100%, POSITION IS externally defined -> se generating script\n' +
+                       ';FOLD STARTPOSITION - BASE IS 0, TOOL IS 0, SPEED IS 100%, POSITION IS externally defined -> se generating script\n' +
                        '$BWDSTART = FALSE\n' +
                        'PDAT_ACT = {VEL 100,ACC 100,APO_DIST 50}\n' + #CATCH APO_DIST, etc. somewhere!!!!
                        'FDAT_ACT = {TOOL_NO 0,BASE_NO 0,IPO_FRAME #BASE}\n' + 
@@ -89,10 +89,12 @@ class SrcGenerator:
     def setAOut(self, ID = 0, value = 0.0):
         self.src.write('$ANOUT[%i] = %f\n' % (ID, value));
     
+    #NOTE: linear speed is in mm/sec
     def setLinSpeed(self, speed = 0.25):
         self.src.write('BAS(#VEL_CP, %f)\n' % (speed));
     
-    def setJointSpeed(self, speed = 0.3):
+    #NOTE: joint speed is in % of max joint speed
+    def setJointSpeed(self, speed = 30):
         self.src.write('BAS(#VEL_PTP, %f)\n' % (speed));
     
     def setLinSmooth(self, val = 0):
