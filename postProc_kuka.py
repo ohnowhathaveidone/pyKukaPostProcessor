@@ -21,11 +21,12 @@ class Position:
         self.x = x; self.y = y; self.z = z; 
         self.a = a; self.b = b; self.c = c;
 
-class SrcGenerator:    
-    
+class SrcGenerator:
     def __init__ (self, fName, loc = './', ADV = 3, homePos = JointPoint(a2 = -90, a3 = 90, a5 = -90)):
         self.fName = fName;
         self.src = open(os.path.join(loc, fName +'.src'), 'w');
+        self.src.write('&ACCESS RVP\n' +
+                       '&REL 1\n\n');
         self.src.write('DEF ' + fName.upper() + '()\n');
         #this is a copy of what kukaPRC outputs.
         self.src.write(';FOLD INI\n' +
@@ -38,7 +39,7 @@ class SrcGenerator:
                        '\n' +
                        ';FOLD STARTPOSITION - BASE IS 0, TOOL IS 3, SPEED IS 100%, POSITION IS externally defined -> se generating script\n' +
                        '$BWDSTART = FALSE\n' +
-                       'PDAT_ACT = {VEL 100,ACC 100,APO_DIST 50}\n' + #CATCH APO_DIST somewhere!!!!
+                       'PDAT_ACT = {VEL 100,ACC 100,APO_DIST 50}\n' + #CATCH APO_DIST, etc. somewhere!!!!
                        'FDAT_ACT = {TOOL_NO 0,BASE_NO 0,IPO_FRAME #BASE}\n' + 
                        'BAS (#PTP_PARAMS,100)\n'
         );
@@ -51,9 +52,18 @@ class SrcGenerator:
         self.src.write('LIN {X %f, Y %f, Z %f, A %f, B %f, C %f, E1 %f, E2 %f, E3 %f, E4 %f} C_DIS\n' 
                         % (p.x, p.y, p.z, p.a, p.b, p.c, p.e1, p.e2, p.e3, p.e4));
     
-    def ptpMotion(selt, p = CartesianPoint()):
-        self.src.write('PTP {X %f, Y %f, Z %f, A %f, B %f, C %f, E1 %f, E2 %f, E3 %f, E4 %f} C_DIS\n' 
-                        % (p.x, p.y, p.z, p.a, p.b, p.c, p.e1, p.e2, p.e3, p.e4));
+    def ptpMotion(self, p = CartesianPoint(), useLinSmoothing = True):
+        if useLinSmoothing:
+            smoothingArg = 'C_DIS';
+        else:
+            smoothingArg = 'C_PTP';
+        
+        self.src.write('PTP {X %f, Y %f, Z %f, A %f, B %f, C %f, E1 %f, E2 %f, E3 %f, E4 %f} %s\n' 
+                        % (p.x, p.y, p.z, p.a, p.b, p.c, p.e1, p.e2, p.e3, p.e4, smoothingArg));
+    
+    def jointMotion(self, p = JointPoint()):
+        self.src.write('PTP {A1 %f, A2 %f, A3 %f, A4 %f, A5 %f, A6 %f, E1 %f, E2 %f, E3 %f, E4 %f} C_PTP\n' 
+                       % (p.a1, p.a2, p.a3, p.a4, p.a5, p.a6, p.e1, p.e2, p.e3, p.e4));
     
     def setBaseByPosition(self, p = Position()):
         self.src.write('$BASE = {X %f, Y %f, Z %f, A %f, B %f, C %f}\n'
@@ -64,19 +74,34 @@ class SrcGenerator:
                         % (p.x, p.y, p.z, p.a, p.b, p.c));
     
     def setBaseByID(self, ID = 0):
-        self.src.write('BAS(#BASE, ' + str(ID) + ')\n');
+        self.src.write('BAS(#BASE, %i)\n' % (ID));
     
     def setToolByID(self, ID = 0):
-        self.src.write('BAS(#TOOL, ' + str(ID) + ')\n');
+        self.src.write('BAS(#TOOL, %i)\n' % (ID));
     
     def delay(self, t=0):#SECONDS!
         self.src.write('WAIT SEC %f\n' % (t));
     
     def setDOut(self, ID = 0, value = 'FALSE'):
-        self.src.write('$OUT[' + str(ID) + '] = ' + value + '\n');
+        self.src.write('$OUT[%i] = %s\n' % (ID, value));
     
     def setAOut(self, ID = 0, value = 0.0):
-        self.src.write('$ANOUT[' + str(ID) + '] = ' + str(value) + '\n');
+        self.src.write('$ANOUT[%i] = %f\n' % (ID, value));
+    
+    def setLinSpeed(self, speed = 0.25):
+        self.src.write('BAS(#VEL_CP, %s)\n' % (speed));
+    
+    def setJointSpeed(self, speed = 0.3):
+        self.src.write('BAS(#VEL_PTP, %s)\n' % (speed));
+    
+    def setLinSmooth(self, val = 0):
+        self.src.write('$APO.CDIS = %s\n' % (val));
+    
+    #NOTE:  first six entries are robot joints in, remaining values are external axes
+    #       depending on the axis bein rotaitonal or linear, the unit is ° or mm, respectively
+    def setJointSmooth(self, vals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]):
+        for i in range(len(vals)):
+            self.src.write('$APO_DIS_PTP[%i] = %f' % (i+1, vals[i]));   
     
     #these should provide some freedom for writing custom KRL code into your program
     def setBAS(self, varName = '', varValue = 0):
