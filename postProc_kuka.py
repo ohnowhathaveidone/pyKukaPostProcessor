@@ -46,6 +46,7 @@ class SrcGenerator:
         self.src.write('PTP {A1 %f, A2 %f, A3 %f, A4 %f, A5 %f, A6 %f, E1 %f, E2 %f, E3 %f, E4 %f}\n;ENDFOLD\n\n' 
                        % (homePos.a1, homePos.a2, homePos.a3, homePos.a4, homePos.a5, homePos.a6, homePos.e1, homePos.e2, homePos.e3, homePos.e4)
         );
+        self.src.write('$ADVANCE = %i\n\n' % (ADV));
         
     
     def linMotion(self, p = CartesianPoint()):
@@ -66,11 +67,11 @@ class SrcGenerator:
                        % (p.a1, p.a2, p.a3, p.a4, p.a5, p.a6, p.e1, p.e2, p.e3, p.e4));
     
     def setBaseByPosition(self, p = Position()):
-        self.src.write('$BASE = {X %f, Y %f, Z %f, A %f, B %f, C %f}\n'
+        self.src.write('$BASE = {FRAME: X %f, Y %f, Z %f, A %f, B %f, C %f}\n'
                         % (p.x, p.y, p.z, p.a, p.b, p.c));
 
     def setToolByPosition(self, p = Position()):
-        self.src.write('$TOOL = {X %f, Y %f, Z %f, A %f, B %f, C %f}\n'
+        self.src.write('$TOOL = {FRAME: X %f, Y %f, Z %f, A %f, B %f, C %f}\n'
                         % (p.x, p.y, p.z, p.a, p.b, p.c));
     
     def setBaseByID(self, ID = 0):
@@ -89,10 +90,10 @@ class SrcGenerator:
         self.src.write('$ANOUT[%i] = %f\n' % (ID, value));
     
     def setLinSpeed(self, speed = 0.25):
-        self.src.write('BAS(#VEL_CP, %s)\n' % (speed));
+        self.src.write('BAS(#VEL_CP, %f)\n' % (speed));
     
     def setJointSpeed(self, speed = 0.3):
-        self.src.write('BAS(#VEL_PTP, %s)\n' % (speed));
+        self.src.write('BAS(#VEL_PTP, %f)\n' % (speed));
     
     def setLinSmooth(self, val = 0):
         self.src.write('$APO.CDIS = %s\n' % (val));
@@ -114,5 +115,5 @@ class SrcGenerator:
         pass;
     
     def close(self):
-        self.src.write('END\n');
+        self.src.write('\nEND\n');
         self.src.close();
