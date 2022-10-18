@@ -22,12 +22,14 @@ class Position:
         self.a = a; self.b = b; self.c = c;
 
 class SrcGenerator:
-    def __init__ (self, fName, loc = './', ADV = 3, homePos = JointPoint(a2 = -90, a3 = 90, a5 = -90)):
+    def __init__ (self, fName, loc = './', ADV = 3, homePos = JointPoint(a2 = -90, a3 = 90, a5 = 90)):
         self.fName = fName;
         self.src = open(os.path.join(loc, fName +'.src'), 'w');
         self.src.write('&ACCESS RVP\n' +
-                       '&REL 1\n\n');
-        self.src.write('DEF ' + fName.upper() + '()\n');
+                       '&REL 1\n\n' +
+                       '&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe\n' +
+                       '&PARAM EDITMASK = *\n');       
+        self.src.write('DEF ' + fName.upper() + ' ( )\n\n\n');
         #this is a copy of what kukaPRC outputs.
         self.src.write(';FOLD INI\n' +
                        ';FOLD BASISTECH INI\n' +
