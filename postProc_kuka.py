@@ -26,8 +26,8 @@ class SrcGenerator:
         self.fName = fName;
         self.src = open(os.path.join(loc, fName +'.src'), 'w');
         self.src.write('&ACCESS RVP\n' +
-                       '&REL 1\n\n' +
-                       '&PARAM TEMPLATE = C:\KRC\Roboter\Template\vorgabe\n' +
+                       '&REL 1\n' +
+                       '&PARAM TEMPLATE = C:\KRC\Roboter\Template\\vorgabe\n' +
                        '&PARAM EDITMASK = *\n');       
         self.src.write('DEF ' + fName.upper() + ' ( )\n\n\n');
         #this is a copy of what kukaPRC outputs.
