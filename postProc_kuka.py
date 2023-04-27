@@ -116,7 +116,9 @@ class SrcGenerator:
         self.src.write(content);        
     
     def fuck(self):
+        #thanks, i'll
         pass;
+        #on that
     
     def close(self):
         self.src.write('\nEND\n');
