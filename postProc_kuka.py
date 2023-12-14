@@ -91,7 +91,7 @@ class SrcGenerator:
     def setAOut(self, ID = 0, value = 0.0):
         self.src.write('$ANOUT[%i] = %f\n' % (ID, value));
     
-    #NOTE: linear speed is in mm/sec
+    #NOTE: linear speed is in m/sec
     def setLinSpeed(self, speed = 0.25):
         self.src.write('BAS(#VEL_CP, %f)\n' % (speed));
     
